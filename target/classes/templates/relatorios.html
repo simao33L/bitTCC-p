@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Relatorios')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('relatorios')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Relatorios Estrategicos')"></div>
+
+        <div class="content">
+            <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
+
+            <div class="page-header">
+                <h1>Relatorios Estrategicos</h1>
+                <a th:href="@{/dashboard}" class="btn-secundario">Voltar ao dashboard</a>
+            </div>
+
+            <div class="cards-grid" style="margin-bottom:22px;">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Chamados</div>
+                    <div class="stat-value" th:text="${totalChamados}">0</div>
+                </div>
+                <div class="stat-card concluido">
+                    <div class="stat-label">Concluidos</div>
+                    <div class="stat-value" th:text="${totalConcluidos}">0</div>
+                </div>
+                <div class="stat-card andamento">
+                    <div class="stat-label">Abertos</div>
+                    <div class="stat-value" th:text="${totalAbertos}">0</div>
+                </div>
+                <div class="stat-card tempo">
+                    <div class="stat-label">MTTR Geral (min)</div>
+                    <div class="stat-value" th:text="${#numbers.formatDecimal(mttr, 1, 1)}">0</div>
+                </div>
+            </div>
+
+            <div class="relatorio-card">
+                <h2>Relatorio Completo de Chamados (Excel)</h2>
+                <p>Exporta todos os chamados com dados completos: ID, titulo, maquina, setor, motivo de falha,
+                   status, tecnico, especialista, datas de abertura/conclusao e tempo de reparo.
+                   Inclui uma aba adicional com metricas gerais (MTTR e distribuicao por motivo de falha).</p>
+                <div class="relatorio-botoes">
+                    <a th:href="@{/relatorios/excel}" class="btn-relatorio excel">Baixar Excel - Todos</a>
+                    <a th:href="@{/relatorios/excel(status='CONCLUIDO')}" class="btn-relatorio excel">Baixar Excel - Concluidos</a>
+                    <a th:href="@{/relatorios/excel(status='ABERTO')}" class="btn-relatorio excel">Baixar Excel - Abertos</a>
+                    <a th:href="@{/relatorios/excel(status='EM_ANDAMENTO')}" class="btn-relatorio excel">Baixar Excel - Em Andamento</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

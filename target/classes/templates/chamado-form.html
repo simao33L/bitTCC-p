@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Abrir Chamado')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('novo')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Abrir Chamado')"></div>
+
+        <div class="content">
+            <div class="page-header">
+                <h1>Novo Chamado de Manutencao</h1>
+                <a th:href="@{/chamados}" class="btn-secundario">Voltar</a>
+            </div>
+
+            <div class="form-card">
+                <form th:action="@{/chamados/novo}" th:object="${chamado}" method="post" enctype="multipart/form-data">
+                    <div class="form-grid">
+                        <div class="form-field full">
+                            <label>Titulo</label>
+                            <input type="text" th:field="*{titulo}" placeholder="Descreva resumidamente o problema">
+                        </div>
+
+                        <div class="form-field">
+                            <label>Maquina</label>
+                            <select name="maquinaId" required>
+                                <option value="" disabled selected>Selecione a maquina</option>
+                                <option th:each="m : ${maquinas}" th:value="${m.id}"
+                                        th:text="${m.nome + ' (' + (m.setor != null ? m.setor.nome : '') + ')'}">
+                                    Maquina
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Motivo da falha</label>
+                            <select name="motivoFalha">
+                                <option value="">-- Selecione --</option>
+                                <option th:each="m : ${motivosFalha}" th:value="${m.name()}" th:text="${m.name()}">
+                                    Motivo
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-field full">
+                            <label>Descricao</label>
+                            <textarea th:field="*{descricao}" placeholder="Detalhes do problema observado"></textarea>
+                        </div>
+
+                        <div class="form-field full">
+                            <label>Foto (opcional)</label>
+                            <input type="file" name="foto" accept="image/*">
+                        </div>
+
+                        <div class="form-field full" style="flex-direction:row; gap:12px;">
+                            <button type="submit" class="btn-primario">Abrir chamado</button>
+                            <a th:href="@{/dashboard}" class="btn-secundario" style="text-align:center;">Cancelar</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

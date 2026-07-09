@@ -1,0 +1,191 @@
+/* ===== BAT Manutencao — Estilos customizados ===== */
+
+:root {
+    --bat-yellow: #ffc107;
+    --bat-dark: #1a1a2e;
+    --bat-purple: #6f42c1;
+    --bat-gray: #f4f5f7;
+    --bat-text: #2c3e50;
+}
+
+body {
+    background: var(--bat-gray);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--bat-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ===== Navbar ===== */
+.navbar-bat {
+    background: var(--bat-dark) !important;
+    border-bottom: 3px solid var(--bat-yellow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-bat .navbar-brand {
+    color: var(--bat-yellow) !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.navbar-bat .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    transition: color 0.15s ease;
+}
+
+.navbar-bat .nav-link:hover {
+    color: var(--bat-yellow) !important;
+}
+
+/* ===== Cards de status (Dashboard) ===== */
+.card-status {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-status:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-status h3 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.card-status small {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+}
+
+/* ===== Badge roxa (status ESCALADO) ===== */
+.badge.bg-purple {
+    background-color: var(--bat-purple) !important;
+    color: white;
+}
+
+/* ===== Cronometro ===== */
+.cronometro {
+    font-family: "Courier New", "Consolas", monospace;
+    font-weight: 700;
+    font-size: 1.3rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    background: #fff3cd;
+    color: #856404;
+    display: inline-block;
+    min-width: 95px;
+    text-align: center;
+}
+
+.cronometro.atrasado {
+    background: #f8d7da;
+    color: #721c24;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* ===== Tabelas ===== */
+table thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    background-color: #fafbfc;
+}
+
+table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+table tbody tr:hover {
+    background-color: rgba(111, 66, 193, 0.04) !important;
+}
+
+/* ===== Cards de metricas ===== */
+.metric-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.metric-card h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* ===== Footer ===== */
+footer.footer-bat {
+    margin-top: 4rem;
+    padding: 1.5rem 0;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.85rem;
+    border-top: 1px solid #dee2e6;
+    background-color: white;
+}
+
+/* ===== Formularios ===== */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bat-yellow);
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.btn-warning {
+    background-color: var(--bat-yellow);
+    border-color: var(--bat-yellow);
+    color: var(--bat-dark);
+    font-weight: 600;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: var(--bat-dark);
+}
+
+/* ===== Foto do chamado ===== */
+.chamado-foto {
+    max-height: 300px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Cards de acao lateral ===== */
+.card-acoes {
+    position: sticky;
+    top: 20px;
+}
+
+/* ===== Alertas personalizados ===== */
+.alert-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ===== Botoes de filtro de status ===== */
+.btn-status-filtro {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}

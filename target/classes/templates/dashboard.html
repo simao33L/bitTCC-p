@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Dashboard')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('dashboard')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Dashboard de Chamados')"></div>
+
+        <div class="content">
+            <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
+
+            <!-- Filtro por setor + periodo -->
+            <form class="filter-bar" th:action="@{/dashboard}" method="get">
+                <div class="field">
+                    <label for="setorId">Setor</label>
+                    <select name="setorId" id="setorId" onchange="this.form.submit()">
+                        <option value="">Todos os setores</option>
+                        <option th:each="s : ${setores}" th:value="${s.id}" th:text="${s.nome}"
+                                th:selected="${setorSelecionadoId != null and setorSelecionadoId == s.id}">Setor</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="dataInicio">Data inicio</label>
+                    <input type="datetime-local" name="dataInicio" id="dataInicio"
+                           th:value="${dataInicio != null} ? ${#temporals.format(dataInicio, 'yyyy-MM-dd''T''HH:mm')} : ''">
+                </div>
+                <div class="field">
+                    <label for="dataFim">Data fim</label>
+                    <input type="datetime-local" name="dataFim" id="dataFim"
+                           th:value="${dataFim != null} ? ${#temporals.format(dataFim, 'yyyy-MM-dd''T''HH:mm')} : ''">
+                </div>
+                <button type="submit" class="btn-filtrar">Filtrar</button>
+                <a th:href="@{/dashboard}" class="btn-limpar" style="text-align:center;">Limpar</a>
+            </form>
+
+            <div th:if="${setorSelecionado != null}" style="margin-bottom:14px;font-size:0.85rem;color:var(--texto-suave);">
+                Filtrando por setor: <strong style="color:var(--bat-azul)" th:text="${setorSelecionado.nome}"></strong>
+            </div>
+
+            <!-- Cards de status -->
+            <div class="cards-grid">
+                <a class="stat-card aberto" th:href="@{/chamados(status='ABERTO')}">
+                    <div class="stat-label">Abertos</div>
+                    <div class="stat-value" th:text="${abertos.size()}">0</div>
+                </a>
+                <a class="stat-card andamento" th:href="@{/chamados(status='EM_ANDAMENTO')}">
+                    <div class="stat-label">Em andamento</div>
+                    <div class="stat-value" th:text="${emAndamento.size()}">0</div>
+                </a>
+                <a class="stat-card pausado" th:href="@{/chamados(status='PAUSADO')}">
+                    <div class="stat-label">Pausados</div>
+                    <div class="stat-value" th:text="${pausados.size()}">0</div>
+                </a>
+                <a class="stat-card escalado" th:href="@{/chamados(status='ESCALADO')}">
+                    <div class="stat-label">Escalados</div>
+                    <div class="stat-value" th:text="${escalados.size()}">0</div>
+                </a>
+                <a class="stat-card concluido" th:href="@{/chamados(status='CONCLUIDO')}">
+                    <div class="stat-label">Concluidos</div>
+                    <div class="stat-value" th:text="${concluidos.size()}">0</div>
+                </a>
+                <div class="stat-card tempo">
+                    <div class="stat-label">Tempo medio de reparo</div>
+                    <div class="stat-value" th:text="${#numbers.formatDecimal(tempoMedioReparo, 1, 1)}">0</div>
+                </div>
+            </div>
+
+            <!-- Bento grid -->
+            <div class="bento">
+                <!-- Grafico de Pareto - MotivoFalha -->
+                <div class="bento-card">
+                    <h2>Motivos de Falha (Pareto)</h2>
+                    <p class="bento-sub">Chamados por motivo (barras) e percentual acumulado (linha)
+                        <span th:if="${setorSelecionado != null}">no setor <strong th:text="${setorSelecionado.nome}"></strong></span>
+                    </p>
+                    <div class="chart-wrap">
+                        <canvas id="paretoMotivos"></canvas>
+                    </div>
+                </div>
+
+                <!-- Grafico de linha - Tendencia temporal -->
+                <div class="bento-card" style="grid-column: 1 / -1;">
+                    <h2>Tendencia de Falhas ao Longo do Tempo</h2>
+                    <p class="bento-sub">Evolucao de chamados concluidos nos ultimos 90 dias</p>
+                    <div class="tendencia-wrap">
+                        <canvas id="graficoTendencia"></canvas>
+                    </div>
+                </div>
+
+                <!-- MTBF por setor -->
+                <div class="bento-card">
+                    <h2>MTBF por Setor</h2>
+                    <p class="bento-sub">Tempo medio entre falhas (horas)</p>
+                    <div class="bar-lista" th:if="${mtbfPorSetor != null and !mtbfPorSetor.isEmpty()}">
+                        <div class="bar-item" th:each="entry : ${mtbfPorSetor}">
+                            <div class="bar-head">
+                                <span class="bar-name" th:text="${entry.key}">Setor</span>
+                                <span class="bar-val" th:text="${#numbers.formatDecimal(entry.value, 1, 1)} + ' h'">0 h</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill" th:style="'width:' + (${entry.value} > 0 ? 100 : 0) + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="empty-state" th:if="${mtbfPorSetor == null or mtbfPorSetor.isEmpty()}">
+                        Sem dados suficientes.
+                    </div>
+                </div>
+
+                <!-- MTBF por maquina -->
+                <div class="bento-card">
+                    <h2>MTBF por Maquina</h2>
+                    <p class="bento-sub">Tempo medio entre falhas (horas)</p>
+                    <div class="bar-lista" th:if="${mtbfPorMaquina != null and !mtbfPorMaquina.isEmpty()}">
+                        <div class="bar-item" th:each="entry : ${mtbfPorMaquina}">
+                            <div class="bar-head">
+                                <span class="bar-name" th:text="${entry.key}">Maquina</span>
+                                <span class="bar-val" th:text="${#numbers.formatDecimal(entry.value, 1, 1)} + ' h'">0 h</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill" th:style="'width:' + (${entry.value} > 0 ? 100 : 0) + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="empty-state" th:if="${mtbfPorMaquina == null or mtbfPorMaquina.isEmpty()}">
+                        Sem dados suficientes.
+                    </div>
+                </div>
+
+                <!-- Chamados abertos recentes -->
+                <div class="bento-card">
+                    <h2>Chamados Abertos</h2>
+                    <p class="bento-sub">Aguardando atendimento</p>
+                    <div class="lista-chamados" th:if="${abertos != null and !abertos.isEmpty()}">
+                        <a class="linha" th:each="c : ${abertos}" th:href="@{/chamados/{id}(id=${c.id})}">
+                            <div class="linha-main">
+                                <span class="linha-titulo" th:text="${c.titulo}">Titulo</span>
+                                <span class="linha-meta">
+                                    <span th:text="'#' + ${c.id}"></span> &middot;
+                                    <span th:text="${c.maquina != null ? c.maquina.nome : '-'}"></span> &middot;
+                                    <span th:text="${c.motivoFalha != null ? c.motivoFalha.name() : 'sem motivo'}"></span>
+                                </span>
+                            </div>
+                            <span class="status-pill pill-aberto">Aberto</span>
+                        </a>
+                    </div>
+                    <div class="empty-state" th:if="${abertos == null or abertos.isEmpty()}">
+                        Nenhum chamado aberto.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /* <![CDATA[ */
+    var motivosData = /*[[${distribuicaoMotivos}]]*/ {};
+    var totalComMotivo = /*[[${totalChamadosComMotivo}]]*/ 0;
+
+    (function () {
+        var ctx = document.getElementById('paretoMotivos');
+        if (!ctx) return;
+
+        if (totalComMotivo === 0) {
+            var placeholder = ctx.parentElement;
+            placeholder.innerHTML = '<div class="empty-state">Nenhum chamado com motivo de falha registrado.</div>';
+            return;
+        }
+
+        var cores = ['#000245', '#002a7a', '#1f5fbf', '#1f9d55', '#c48f00',
+                     '#c25a1e', '#b5302a', '#5c30a0', '#6b7280'];
+
+        // Monta pares [motivo, valor] e ordena do maior pro menor (regra do Pareto)
+        var pares = [];
+        for (var key in motivosData) {
+            if (motivosData.hasOwnProperty(key)) {
+                pares.push([formatarMotivo(key), motivosData[key]]);
+            }
+        }
+        pares.sort(function (a, b) { return b[1] - a[1]; });
+
+        var labels = pares.map(function (p) { return p[0]; });
+        var valores = pares.map(function (p) { return p[1]; });
+
+        // Calcula o percentual acumulado (linha do Pareto)
+        var acumulado = 0;
+        var percentualAcumulado = valores.map(function (v) {
+            acumulado += v;
+            return totalComMotivo > 0 ? +( (acumulado / totalComMotivo) * 100 ).toFixed(1) : 0;
+        });
+
+        new Chart(ctx, {
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Chamados',
+                        data: valores,
+                        backgroundColor: labels.map(function (_, idx) { return cores[idx % cores.length]; }),
+                        borderRadius: 4,
+                        yAxisID: 'y',
+                        order: 2
+                    },
+                    {
+                        type: 'line',
+                        label: 'Acumulado (%)',
+                        data: percentualAcumulado,
+                        borderColor: '#b5302a',
+                        backgroundColor: '#b5302a',
+                        pointBackgroundColor: '#b5302a',
+                        pointRadius: 4,
+                        tension: 0.25,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                if (context.dataset.type === 'line') {
+                                    return 'Acumulado: ' + context.parsed.y + '%';
+                                }
+                                var val = context.parsed.y;
+                                var pct = totalComMotivo > 0 ? ((val / totalComMotivo) * 100).toFixed(1) : 0;
+                                return context.label + ': ' + val + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: { display: true, text: 'Nº de chamados' },
+                        grid: { color: '#eef0f6' }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        max: 100,
+                        position: 'right',
+                        title: { display: true, text: '% acumulado' },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        ticks: { autoSkip: false, maxRotation: 30, minRotation: 0 }
+                    }
+                }
+            }
+        });
+
+        function formatarMotivo(m) {
+            var mapa = {
+                ELETRICA: 'Eletrica', MECANICA: 'Mecanica', PNEUMATICA: 'Pneumatica',
+                HIDRAULICA: 'Hidraulica', ELETRONICA: 'Eletronica', SOFTWARE: 'Software',
+                OPERACIONAL: 'Operacional', DESGASTE: 'Desgaste', OUTROS: 'Outros'
+            };
+            return mapa[m] || m;
+        }
+    })();
+
+    /* Grafico de linha - tendencia temporal */
+    (function () {
+        var tendenciaDiaria = /*[[${tendenciaDiaria}]]*/ {};
+        var tendenciaMotivo = /*[[${tendenciaMotivo}]]*/ {};
+
+        var canvas = document.getElementById('graficoTendencia');
+        if (!canvas) return;
+
+        var datasets = [];
+        var datasetTotal = {
+            label: 'Total de chamados concluidos',
+            data: [],
+            borderColor: '#000245',
+            backgroundColor: 'rgba(0,2,69,0.08)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#000245'
+        };
+
+        var coresMotivo = {
+            ELETRICA: '#b5302a', MECANICA: '#1f9d55', PNEUMATICA: '#c48f00',
+            HIDRAULICA: '#002a7a', ELETRONICA: '#5c30a0', SOFTWARE: '#c25a1e',
+            OPERACIONAL: '#1f5fbf', DESGASTE: '#6b7280', OUTROS: '#3a3a3a'
+        };
+
+        var allDates = new Set(Object.keys(tendenciaDiaria));
+        for (var motivo in tendenciaMotivo) {
+            for (var d in tendenciaMotivo[motivo]) allDates.add(d);
+        }
+        var sortedDates = Array.from(allDates).sort(function (a, b) { return a < b ? -1 : 1; });
+        var totalPoints = sortedDates.length;
+        if (totalPoints === 0) {
+            canvas.parentElement.innerHTML = '<div class="empty-state">Sem dados de tendencia nos ultimos 90 dias.</div>';
+            return;
+        }
+
+        sortedDates = sortedDates.filter(function (d) {
+            return new Date(d.split('-')[0] + '-' + d.split('-')[1] + '-' + d.split('-')[2] + 'T00:00:00') >= new Date(Date.now() - 90 * 86400000);
+        });
+
+        if (sortedDates.length > 30) {
+            var step = Math.ceil(sortedDates.length / 30);
+            var sampled = [];
+            for (var s = 0; s < sortedDates.length; s += step) sampled.push(sortedDates[s]);
+            if (sampled[sampled.length - 1] !== sortedDates[sortedDates.length - 1])
+                sampled.push(sortedDates[sortedDates.length - 1]);
+            sortedDates = sampled;
+        }
+
+        datasetTotal.data = sortedDates.map(function (d) {
+            return tendenciaDiaria[d] || 0;
+        });
+        datasets.push(datasetTotal);
+
+        for (var mot in tendenciaMotivo) {
+            if (Object.keys(tendenciaMotivo[mot]).length === 0) continue;
+            datasets.push({
+                label: mot,
+                data: sortedDates.map(function (d) { return tendenciaMotivo[mot][d] || 0; }),
+                borderColor: coresMotivo[mot] || '#999',
+                backgroundColor: 'transparent',
+                fill: false,
+                tension: 0.3,
+                borderWidth: 1.5,
+                pointRadius: 2,
+                hidden: true
+            });
+        }
+
+        new Chart(canvas, {
+            type: 'line',
+            data: { labels: sortedDates, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: { display: true, ticks: { maxTicksLimit: 12, font: { size: 10 } } },
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    })();
+    /* ]]> */
+</script>
+</body>
+</html>
