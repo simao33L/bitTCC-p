@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Detalhe da Maquina')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('maquinas')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Detalhe da Maquina')"></div>
+
+        <div class="content">
+            <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
+
+            <div class="page-header">
+                <h1 th:text="${maquina.nome}">Maquina</h1>
+                <a th:href="@{/maquinas}" class="btn-secundario">Voltar</a>
+            </div>
+
+            <div class="detalhe-grid">
+                <div>
+                    <div class="detalhe-card" style="margin-bottom:18px;">
+                        <h2>Informacoes da Maquina</h2>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.85rem;">
+                            <div><strong>Modelo:</strong> <span th:text="${maquina.modelo ?: '-'}"></span></div>
+                            <div><strong>Numero de serie:</strong> <span th:text="${maquina.numeroSerie ?: '-'}"></span></div>
+                            <div><strong>Setor:</strong> <span th:text="${maquina.setor != null ? maquina.setor.nome : '-'}"></span></div>
+                            <div><strong>Status atual:</strong>
+                                <span class="status-pill"
+                                      th:classappend="${maquina.status.name() == 'OPERANDO'} ? 'pill-concluido' :
+                                        (${maquina.status.name() == 'PARADA'} ? 'pill-aberto' : 'pill-andamento')"
+                                      th:text="${maquina.status.name() == 'OPERANDO'} ? 'Operando' :
+                                        (${maquina.status.name() == 'PARADA'} ? 'Parada' : 'Em Manutencao')"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detalhe-card" style="margin-bottom:18px;">
+                        <h2>Alterar Status</h2>
+                        <form th:action="@{/maquinas/{id}/status(id=${maquina.id})}" method="post"
+                              style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                            <div class="form-field" style="margin:0;">
+                                <label>Novo status</label>
+                                <select name="status" required>
+                                    <option value="OPERANDO" th:selected="${maquina.status.name() == 'OPERANDO'}">Operando</option>
+                                    <option value="PARADA" th:selected="${maquina.status.name() == 'PARADA'}">Parada</option>
+                                    <option value="MANUTENCAO" th:selected="${maquina.status.name() == 'MANUTENCAO'}">Em Manutencao</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-primario">Atualizar</button>
+                        </form>
+                    </div>
+
+                    <div class="detalhe-card">
+                        <h2>Historico de Manutencao</h2>
+                        <div th:if="${historico != null and !historico.isEmpty()}" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                            <div th:each="c : ${historico}" style="padding:10px 14px; background:var(--bat-azul-fundo); border-radius:8px; border:1px solid var(--borda);">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <a th:href="@{/chamados/{id}(id=${c.id})}" style="font-weight:700; color:var(--bat-azul-medio);">
+                                        #<span th:text="${c.id}"></span> <span th:text="${c.titulo}"></span>
+                                    </a>
+                                    <span class="status-pill"
+                                          th:classappend="${c.status.name() == 'ABERTO'} ? 'pill-aberto' :
+                                            (${c.status.name() == 'EM_ANDAMENTO'} ? 'pill-andamento' :
+                                            (${c.status.name() == 'PAUSADO'} ? 'pill-pausado' :
+                                            (${c.status.name() == 'ESCALADO'} ? 'pill-escalado' : 'pill-concluido')))"
+                                          th:text="${c.status.name() == 'ABERTO'} ? 'Aberto' :
+                                            (${c.status.name() == 'EM_ANDAMENTO'} ? 'Em andamento' :
+                                            (${c.status.name() == 'PAUSADO'} ? 'Pausado' :
+                                            (${c.status.name() == 'ESCALADO'} ? 'Escalado' : 'Concluido')))"></span>
+                                </div>
+                                <div style="font-size:0.76rem; color:var(--texto-suave); margin-top:4px;">
+                                    <span th:text="${c.dataAbertura != null ? #temporals.format(c.dataAbertura, 'dd/MM/yyyy HH:mm') : '-'}"></span>
+                                    <span th:if="${c.motivoFalha != null}"> &middot; <span th:text="${c.motivoFalha.name()}"></span></span>
+                                    <span th:if="${c.tecnico != null}"> &middot; Tecnico: <span th:text="${c.tecnico.nome}"></span></span>
+                                    <span th:if="${c.status.name() == 'CONCLUIDO' and c.tempoReparoAcumulado != null}"> &middot; Tempo: <span th:text="${c.tempoReparoAcumulado / 60}"></span> min</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="empty-state" th:if="${historico == null or historico.isEmpty()}" style="padding:16px;">
+                            Sem historico de manutencao.
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="detalhe-card" style="margin-bottom:18px;">
+                        <h2>Metricas</h2>
+                        <div style="display:flex; flex-direction:column; gap:14px; margin-top:10px;">
+                            <div>
+                                <div style="font-size:0.74rem; color:var(--texto-suave);">MTBF</div>
+                                <div style="font-size:1.6rem; font-weight:900; color:var(--bat-azul);">
+                                    <span th:text="${#numbers.formatDecimal(mtbfHoras, 1, 1)}">0</span> h
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.74rem; color:var(--texto-suave);">Downtime total</div>
+                                <div style="font-size:1.6rem; font-weight:900; color:var(--vermelho);">
+                                    <span th:text="${#numbers.formatDecimal(tempoDowntimeSegundos / 3600.0, 1, 1)}">0</span> h
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.74rem; color:var(--texto-suave);">Chamados ativos</div>
+                                <div style="font-size:1.6rem; font-weight:900; color:var(--amarelo);">
+                                    <span th:text="${chamadosAtivos != null ? chamadosAtivos.size() : 0}">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detalhe-card">
+                        <h2>Chamados Ativos</h2>
+                        <div th:if="${chamadosAtivos != null and !chamadosAtivos.isEmpty()}" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                            <a th:each="c : ${chamadosAtivos}" th:href="@{/chamados/{id}(id=${c.id})}"
+                               style="padding:10px 14px; background:var(--bat-azul-fundo); border-radius:8px; border:1px solid var(--borda);">
+                                <div style="font-weight:700; font-size:0.84rem; color:var(--bat-azul-medio);" th:text="${c.titulo}"></div>
+                                <div style="font-size:0.72rem; color:var(--texto-suave);" th:text="${c.status.name()}"></div>
+                            </a>
+                        </div>
+                        <div class="empty-state" th:if="${chamadosAtivos == null or chamadosAtivos.isEmpty()}" style="padding:16px;">
+                            Nenhum chamado ativo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

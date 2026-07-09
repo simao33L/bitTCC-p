@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Ranking de Tecnicos')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('ranking')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Ranking de Tecnicos')"></div>
+
+        <div class="content">
+            <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
+
+            <div class="page-header">
+                <h1>Tecnicos com mais chamados resolvidos</h1>
+                <a th:href="@{/dashboard}" class="btn-secundario">Voltar ao dashboard</a>
+            </div>
+
+            <div class="podium-banner" th:if="${ranking != null and !ranking.isEmpty()}">
+                <div class="podium-icon">1</div>
+                <div class="podium-text">
+                    <h2>Lider do ranking: <span th:text="${ranking[0].nome}">Tecnico</span></h2>
+                    <p>
+                        <span th:text="${ranking[0].total}"></span> chamados resolvidos &middot;
+                        tempo medio de reparo: <span th:text="${#numbers.formatDecimal((ranking[0].tempoMedioSegundos != null ? ranking[0].tempoMedioSegundos/60.0 : 0), 1, 1)}"></span> min
+                    </p>
+                </div>
+            </div>
+
+            <div class="ranking-lista" th:if="${ranking != null and !ranking.isEmpty()}">
+                <div class="rank-item" th:each="r, stat : ${ranking}"
+                     th:classappend="${stat.count == 1} ? 'topo1' : (${stat.count == 2} ? 'topo2' : (${stat.count == 3} ? 'topo3' : ''))">
+                    <div class="rank-pos" th:text="${stat.count}">1</div>
+                    <div class="rank-info">
+                        <div class="rank-nome" th:text="${r.nome}">Tecnico</div>
+                        <div class="rank-extra">
+                            Tempo medio de reparo:
+                            <strong th:text="${#numbers.formatDecimal((r.tempoMedioSegundos != null ? r.tempoMedioSegundos/60.0 : 0), 1, 1)}"></strong> min
+                        </div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-total"><span th:text="${r.total}">0</span> <small>resolvidos</small></div>
+                    </div>
+                    <div class="rank-bar">
+                        <div class="rank-fill" th:style="'width:' + ${#numbers.formatDecimal(r.total * 100.0 / maxTotal, 0, 0)} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${ranking == null or ranking.isEmpty()}">
+                <p>Nenhum chamado concluido por tecnicos ainda.</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

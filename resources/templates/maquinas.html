@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Maquinas')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('maquinas')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Monitoramento de Maquinas')"></div>
+
+        <div class="content">
+            <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
+
+            <div class="page-header">
+                <h1>Monitoramento de Maquinas</h1>
+                <div style="display:flex; gap:10px;">
+                    <span class="status-pill pill-concluido" th:text="'Operando: ' + ${totalOperando}">0</span>
+                    <span class="status-pill pill-escalado" th:text="'Manutencao: ' + ${totalManutencao}">0</span>
+                    <span class="status-pill pill-aberto" th:text="'Paradas: ' + ${totalParadas}">0</span>
+                </div>
+            </div>
+
+            <div class="maquinas-grid" th:if="${maquinaInfos != null and !maquinaInfos.isEmpty()}">
+                <a th:each="mi : ${maquinaInfos}" th:href="@{/maquinas/{id}(id=${mi.maquina.id})}" class="maquina-card">
+                    <h3 th:text="${mi.maquina.nome}">Maquina</h3>
+                    <div class="maq-modelo">
+                        <span th:text="${mi.maquina.modelo ?: ''}"></span>
+                        <span th:if="${mi.maquina.numeroSerie != null}" th:text="' | ' + ${mi.maquina.numeroSerie}"></span>
+                    </div>
+                    <span class="maq-status"
+                          th:classappend="${mi.maquina.status.name() == 'OPERANDO'} ? 'maq-status-operando' :
+                            (${mi.maquina.status.name() == 'PARADA'} ? 'maq-status-parada' : 'maq-status-manutencao')"
+                          th:text="${mi.maquina.status.name() == 'OPERANDO'} ? 'Operando' :
+                            (${mi.maquina.status.name() == 'PARADA'} ? 'Parada' : 'Em Manutencao')">
+                        Status
+                    </span>
+                    <div class="maq-stats">
+                        <div class="maq-stat">
+                            <strong th:text="${mi.totalChamados}">0</strong>
+                            Chamados totais
+                        </div>
+                        <div class="maq-stat">
+                            <strong th:text="${mi.chamadosAtivos}">0</strong>
+                            Chamados ativos
+                        </div>
+                        <div class="maq-stat">
+                            <strong th:text="${#numbers.formatDecimal(mi.tempoDowntimeSegundos / 3600.0, 1, 1)} + ' h'">0 h</strong>
+                            Downtime total
+                        </div>
+                        <div class="maq-stat">
+                            <strong th:text="${#numbers.formatDecimal(mi.mtbfHoras, 1, 1)} + ' h'">0 h</strong>
+                            MTBF
+                        </div>
+                    </div>
+                    <div style="margin-top:8px; font-size:0.74rem; color:var(--texto-suave);">
+                        <strong>Setor:</strong> <span th:text="${mi.maquina.setor != null ? mi.maquina.setor.nome : '-'}"></span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="empty-state" th:if="${maquinaInfos == null or maquinaInfos.isEmpty()}">
+                <p>Nenhuma maquina cadastrada.</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
