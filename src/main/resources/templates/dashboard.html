@@ -39,117 +39,163 @@
                 Filtrando por setor: <strong style="color:var(--bat-azul)" th:text="${setorSelecionado.nome}"></strong>
             </div>
 
-            <!-- Cards de status -->
-            <div class="cards-grid">
-                <a class="stat-card aberto" th:href="@{/chamados(status='ABERTO')}">
-                    <div class="stat-label">Abertos</div>
-                    <div class="stat-value" th:text="${abertos.size()}">0</div>
+            <!-- KPIs em disposicao destacada -->
+            <div class="kpi-grid">
+                <a class="kpi-card kpi-feature aberto" th:href="@{/chamados(status='ABERTO')}">
+                    <div class="kpi-eyebrow">Abertos</div>
+                    <div class="kpi-num" th:text="${abertos.size()}">0</div>
+                    <div class="kpi-foot">Aguardando atendimento</div>
                 </a>
-                <a class="stat-card andamento" th:href="@{/chamados(status='EM_ANDAMENTO')}">
-                    <div class="stat-label">Em andamento</div>
-                    <div class="stat-value" th:text="${emAndamento.size()}">0</div>
+                <a class="kpi-card andamento" th:href="@{/chamados(status='EM_ANDAMENTO')}">
+                    <div class="kpi-eyebrow">Em andamento</div>
+                    <div class="kpi-num" th:text="${emAndamento.size()}">0</div>
                 </a>
-                <a class="stat-card pausado" th:href="@{/chamados(status='PAUSADO')}">
-                    <div class="stat-label">Pausados</div>
-                    <div class="stat-value" th:text="${pausados.size()}">0</div>
+                <a class="kpi-card pausado" th:href="@{/chamados(status='PAUSADO')}">
+                    <div class="kpi-eyebrow">Pausados</div>
+                    <div class="kpi-num" th:text="${pausados.size()}">0</div>
                 </a>
-                <a class="stat-card escalado" th:href="@{/chamados(status='ESCALADO')}">
-                    <div class="stat-label">Escalados</div>
-                    <div class="stat-value" th:text="${escalados.size()}">0</div>
+                <a class="kpi-card escalado" th:href="@{/chamados(status='ESCALADO')}">
+                    <div class="kpi-eyebrow">Escalados</div>
+                    <div class="kpi-num" th:text="${escalados.size()}">0</div>
                 </a>
-                <a class="stat-card concluido" th:href="@{/chamados(status='CONCLUIDO')}">
-                    <div class="stat-label">Concluidos</div>
-                    <div class="stat-value" th:text="${concluidos.size()}">0</div>
+                <a class="kpi-card concluido" th:href="@{/chamados(status='CONCLUIDO')}">
+                    <div class="kpi-eyebrow">Conclu&iacute;dos</div>
+                    <div class="kpi-num" th:text="${concluidos.size()}">0</div>
                 </a>
-                <div class="stat-card tempo">
-                    <div class="stat-label">Tempo medio de reparo</div>
-                    <div class="stat-value" th:text="${#numbers.formatDecimal(tempoMedioReparo, 1, 1)}">0</div>
+
+                <div class="kpi-strip tempo">
+                    <div class="strip-left">
+                        <div class="kpi-eyebrow">Tempo m&eacute;dio de reparo</div>
+                        <div class="strip-hint">Minutos por chamado</div>
+                    </div>
+                    <div class="strip-value">
+                        <span th:text="${#numbers.formatDecimal(tempoMedioReparo, 1, 1)}">0</span>
+                        <small>min</small>
+                    </div>
+                    <div class="strip-meter">
+                        <div class="strip-meter-fill" th:style="'width:' + (${tempoMedioReparo >= 60 ? 100 : #numbers.formatDecimal(tempoMedioReparo * 100.0 / 60, 0, 0)}) + '%'"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Bento grid -->
-            <div class="bento">
-                <!-- Grafico de Pareto - MotivoFalha -->
-                <div class="bento-card">
-                    <h2>Motivos de Falha (Pareto)</h2>
-                    <p class="bento-sub">Chamados por motivo (barras) e percentual acumulado (linha)
-                        <span th:if="${setorSelecionado != null}">no setor <strong th:text="${setorSelecionado.nome}"></strong></span>
-                    </p>
+            <!-- Hero: tendencia temporal -->
+            <section class="hero-card">
+                <header class="card-head">
+                    <div>
+                        <h2>Tend&ecirc;ncia de Falhas ao Longo do Tempo</h2>
+                        <p class="bento-sub">Evolu&ccedil;&atilde;o de chamados conclu&iacute;dos nos &uacute;ltimos 90 dias</p>
+                    </div>
+                    <span class="tag-live">● atualizado</span>
+                </header>
+                <div class="tendencia-wrap">
+                    <canvas id="graficoTendencia"></canvas>
+                </div>
+            </section>
+
+            <!-- Grid secund&aacute;rio: pareto + an&eacute;is (MTBF por Setor) -->
+            <div class="grid-2">
+                <section class="bento-card span-4">
+                    <header class="card-head">
+                        <div>
+                            <h2>Motivos de Falha (Pareto)</h2>
+                            <p class="bento-sub">Chamados por motivo (barras) e percentual acumulado (linha)
+                                <span th:if="${setorSelecionado != null}">no setor <strong th:text="${setorSelecionado.nome}"></strong></span>
+                            </p>
+                        </div>
+                    </header>
                     <div class="chart-wrap">
                         <canvas id="paretoMotivos"></canvas>
                     </div>
-                </div>
+                </section>
 
-                <!-- Grafico de linha - Tendencia temporal -->
-                <div class="bento-card" style="grid-column: 1 / -1;">
-                    <h2>Tendencia de Falhas ao Longo do Tempo</h2>
-                    <p class="bento-sub">Evolucao de chamados concluidos nos ultimos 90 dias</p>
-                    <div class="tendencia-wrap">
-                        <canvas id="graficoTendencia"></canvas>
-                    </div>
-                </div>
-
-                <!-- MTBF por setor -->
-                <div class="bento-card">
-                    <h2>MTBF por Setor</h2>
-                    <p class="bento-sub">Tempo medio entre falhas (horas)</p>
-                    <div class="bar-lista" th:if="${mtbfPorSetor != null and !mtbfPorSetor.isEmpty()}">
-                        <div class="bar-item" th:each="entry : ${mtbfPorSetor}">
-                            <div class="bar-head">
-                                <span class="bar-name" th:text="${entry.key}">Setor</span>
-                                <span class="bar-val" th:text="${#numbers.formatDecimal(entry.value, 1, 1)} + ' h'">0 h</span>
+                <section class="bento-card gauge-card">
+                    <header class="card-head">
+                        <div>
+                            <h2>MTBF por Setor</h2>
+                            <p class="bento-sub">Tempo m&eacute;dio entre falhas (h)</p>
+                        </div>
+                    </header>
+                    <div class="gauge-grid" th:if="${mtbfPorSetor != null and !mtbfPorSetor.isEmpty()}">
+                        <div class="gauge-item" th:each="entry : ${mtbfPorSetor}"
+                             th:with="cap=100.0, pct=${entry.value > 0 ? (entry.value >= cap ? 100 : #numbers.formatDecimal(entry.value * 100.0 / cap, 0, 0)) : 0}">
+                            <div class="gauge-ring" th:style="'--pct:' + ${pct}">
+                                <svg viewBox="0 0 36 36">
+                                    <circle cx="18" cy="18" r="15.9155" class="gauge-bg"></circle>
+                                    <circle cx="18" cy="18" r="15.9155" class="gauge-fg"
+                                            th:style="'stroke-dasharray:' + ${pct} + ' 100'"></circle>
+                                </svg>
+                                <div class="gauge-value">
+                                    <span th:text="${#numbers.formatDecimal(entry.value, 1, 1)}">0</span>
+                                    <small>h</small>
+                                </div>
                             </div>
-                            <div class="bar-track">
-                                <div class="bar-fill" th:style="'width:' + (${entry.value} > 0 ? 100 : 0) + '%'"></div>
-                            </div>
+                            <div class="gauge-label" th:text="${entry.key}">Setor</div>
                         </div>
                     </div>
                     <div class="empty-state" th:if="${mtbfPorSetor == null or mtbfPorSetor.isEmpty()}">
                         Sem dados suficientes.
                     </div>
-                </div>
+                </section>
+            </div>
 
-                <!-- MTBF por maquina -->
-                <div class="bento-card">
-                    <h2>MTBF por Maquina</h2>
-                    <p class="bento-sub">Tempo medio entre falhas (horas)</p>
-                    <div class="bar-lista" th:if="${mtbfPorMaquina != null and !mtbfPorMaquina.isEmpty()}">
-                        <div class="bar-item" th:each="entry : ${mtbfPorMaquina}">
-                            <div class="bar-head">
-                                <span class="bar-name" th:text="${entry.key}">Maquina</span>
-                                <span class="bar-val" th:text="${#numbers.formatDecimal(entry.value, 1, 1)} + ' h'">0 h</span>
+            <!-- Grid terci&aacute;rio: MTBF por Maquina (tiles) + Chamados abertos (tickets) -->
+            <div class="grid-3">
+                <section class="bento-card">
+                    <header class="card-head">
+                        <div>
+                            <h2>MTBF por M&aacute;quina</h2>
+                            <p class="bento-sub">Tempo m&eacute;dio entre falhas (h)</p>
+                        </div>
+                    </header>
+                    <div class="maq-tiles" th:if="${mtbfPorMaquina != null and !mtbfPorMaquina.isEmpty()}">
+                        <div class="maq-tile" th:each="entry : ${mtbfPorMaquina}">
+                            <div class="maq-tile-top">
+                                <span class="maq-dot" th:classappend="${entry.value == 0} ? 'dot-red' : 'dot-green'"></span>
+                                <span class="maq-name" th:text="${entry.key}">M&aacute;quina</span>
                             </div>
-                            <div class="bar-track">
-                                <div class="bar-fill" th:style="'width:' + (${entry.value} > 0 ? 100 : 0) + '%'"></div>
+                            <div class="maq-tile-val">
+                                <strong th:text="${#numbers.formatDecimal(entry.value, 1, 1)}">0</strong>
+                                <small>h</small>
+                            </div>
+                            <div class="maq-tile-bar">
+                                <span th:style="'width:' + (${entry.value >= 200 ? 100 : #numbers.formatDecimal(entry.value / 2.0, 0, 0)}) + '%'"></span>
                             </div>
                         </div>
                     </div>
                     <div class="empty-state" th:if="${mtbfPorMaquina == null or mtbfPorMaquina.isEmpty()}">
                         Sem dados suficientes.
                     </div>
-                </div>
+                </section>
 
-                <!-- Chamados abertos recentes -->
-                <div class="bento-card">
-                    <h2>Chamados Abertos</h2>
-                    <p class="bento-sub">Aguardando atendimento</p>
-                    <div class="lista-chamados" th:if="${abertos != null and !abertos.isEmpty()}">
-                        <a class="linha" th:each="c : ${abertos}" th:href="@{/chamados/{id}(id=${c.id})}">
-                            <div class="linha-main">
-                                <span class="linha-titulo" th:text="${c.titulo}">Titulo</span>
-                                <span class="linha-meta">
-                                    <span th:text="'#' + ${c.id}"></span> &middot;
-                                    <span th:text="${c.maquina != null ? c.maquina.nome : '-'}"></span> &middot;
+                <section class="bento-card">
+                    <header class="card-head">
+                        <div>
+                            <h2>Chamados Abertos</h2>
+                            <p class="bento-sub">Aguardando atendimento</p>
+                        </div>
+                        <span class="tag-count" th:if="${abertos != null}" th:text="${abertos.size()}">0</span>
+                    </header>
+                    <div class="tickets" th:if="${abertos != null and !abertos.isEmpty()}">
+                        <a class="ticket" th:each="c : ${abertos}" th:href="@{/chamados/{id}(id=${c.id})}">
+                            <span class="ticket-bar"></span>
+                            <div class="ticket-body">
+                                <div class="ticket-top">
+                                    <span class="ticket-num" th:text="'#' + ${c.id}">#</span>
+                                    <span class="ticket-status">Aberto</span>
+                                </div>
+                                <span class="ticket-title" th:text="${c.titulo}">T&iacute;tulo</span>
+                                <span class="ticket-meta">
+                                    <span th:text="${c.maquina != null ? c.maquina.nome : '-'}"></span>
+                                    &middot;
                                     <span th:text="${c.motivoFalha != null ? c.motivoFalha.name() : 'sem motivo'}"></span>
                                 </span>
                             </div>
-                            <span class="status-pill pill-aberto">Aberto</span>
                         </a>
                     </div>
                     <div class="empty-state" th:if="${abertos == null or abertos.isEmpty()}">
                         Nenhum chamado aberto.
                     </div>
-                </div>
+                </section>
             </div>
         </div>
     </div>

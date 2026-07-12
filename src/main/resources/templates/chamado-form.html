@@ -9,59 +9,162 @@
         <div th:replace="fragments/layout :: topbar('Abrir Chamado')"></div>
 
         <div class="content">
-            <div class="page-header">
-                <h1>Novo Chamado de Manutencao</h1>
-                <a th:href="@{/chamados}" class="btn-secundario">Voltar</a>
+            <div th:if="${erro}" class="alert-erro" th:text="${erro}"></div>
+
+            <div class="form-hero">
+                <div class="form-hero-text">
+                    <h1>Novo Chamado de Manuten&ccedil;&atilde;o</h1>
+                    <p>Preencha os dados abaixo para abrir um chamado. Quanto mais detalhes voc&ecirc; fornecer, mais r&aacute;pido ser&aacute; o atendimento.</p>
+                </div>
+                <a th:href="@{/chamados}" class="btn-secundario">← Voltar</a>
             </div>
 
-            <div class="form-card">
-                <form th:action="@{/chamados/novo}" th:object="${chamado}" method="post" enctype="multipart/form-data">
-                    <div class="form-grid">
-                        <div class="form-field full">
-                            <label>Titulo</label>
-                            <input type="text" th:field="*{titulo}" placeholder="Descreva resumidamente o problema">
-                        </div>
+            <form class="chamado-layout" th:action="@{/chamados/novo}" th:object="${chamado}" method="post" enctype="multipart/form-data">
 
-                        <div class="form-field">
-                            <label>Maquina</label>
-                            <select name="maquinaId" required>
-                                <option value="" disabled selected>Selecione a maquina</option>
-                                <option th:each="m : ${maquinas}" th:value="${m.id}"
-                                        th:text="${m.nome + ' (' + (m.setor != null ? m.setor.nome : '') + ')'}">
-                                    Maquina
-                                </option>
-                            </select>
+                <section class="chamado-form-panel">
+                    <div class="form-section">
+                        <div class="form-section-head">
+                            <span class="step-badge">1</span>
+                            <div>
+                                <h2>Identifica&ccedil;&atilde;o</h2>
+                                <p>Como voc&ecirc; descreveria o problema?</p>
+                            </div>
                         </div>
-
-                        <div class="form-field">
-                            <label>Motivo da falha</label>
-                            <select name="motivoFalha">
-                                <option value="">-- Selecione --</option>
-                                <option th:each="m : ${motivosFalha}" th:value="${m.name()}" th:text="${m.name()}">
-                                    Motivo
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="form-field full">
-                            <label>Descricao</label>
-                            <textarea th:field="*{descricao}" placeholder="Detalhes do problema observado"></textarea>
-                        </div>
-
-                        <div class="form-field full">
-                            <label>Foto (opcional)</label>
-                            <input type="file" name="foto" accept="image/*">
-                        </div>
-
-                        <div class="form-field full" style="flex-direction:row; gap:12px;">
-                            <button type="submit" class="btn-primario">Abrir chamado</button>
-                            <a th:href="@{/dashboard}" class="btn-secundario" style="text-align:center;">Cancelar</a>
+                        <div class="form-grid">
+                            <div class="form-field full">
+                                <label>T&iacute;tulo</label>
+                                <input type="text" th:field="*{titulo}" placeholder="Ex.: Vazamento de &oacute;leo hidr&aacute;ulico na m&aacute;quina de cortar">
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
+
+                    <div class="form-section">
+                        <div class="form-section-head">
+                            <span class="step-badge">2</span>
+                            <div>
+                                <h2>Localiza&ccedil;&atilde;o</h2>
+                                <p>Qual m&aacute;quina est&aacute; apresentando o problema?</p>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label>M&aacute;quina</label>
+                                <select name="maquinaId" required>
+                                    <option value="" disabled selected>Selecione a m&aacute;quina</option>
+                                    <option th:each="m : ${maquinas}" th:value="${m.id}"
+                                            th:text="${m.nome + ' (' + (m.setor != null ? m.setor.nome : '') + ')'}">
+                                        Maquina
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label>Motivo da falha</label>
+                                <select name="motivoFalha">
+                                    <option value="">-- Selecione --</option>
+                                    <option th:each="m : ${motivosFalha}" th:value="${m.name()}" th:text="${m.name()}">
+                                        Motivo
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-head">
+                            <span class="step-badge">3</span>
+                            <div>
+                                <h2>Detalhamento</h2>
+                                <p>Descreva o problema com o m&aacute;ximo de informa&ccedil;&otilde;es poss&iacute;vel.</p>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-field full">
+                                <label>Descri&ccedil;&atilde;o</label>
+                                <textarea th:field="*{descricao}" placeholder="Ex.: &Aacute;gua acumulada sob a m&aacute;quina, vazamento na veda&ccedil;&atilde;o do cilindroprincipal. Pelomenos 200ml de &oacute;leo."></textarea>
+                            </div>
+                            <div class="form-field full">
+                                <label>Foto (opcional)</label>
+                                <div class="file-drop">
+                                    <input type="file" name="foto" accept="image/*" id="fotoInput">
+                                    <label for="fotoInput" class="file-drop-label">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7"></path>
+                                            <path d="M16 6l-4-4-4 4"></path>
+                                            <path d="M12 2v14"></path>
+                                        </svg>
+                                        <span>Clique para enviar ou arraste uma imagem aqui</span>
+                                        <small>PNG, JPG ou WEBP — at&eacute; 5 MB</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primario">Abrir chamado</button>
+                        <a th:href="@{/dashboard}" class="btn-secundario">Cancelar</a>
+                    </div>
+                </section>
+
+                <aside class="chamado-side-panel">
+                    <div class="side-card">
+                        <h3>O que acontece depois?</h3>
+                        <ol class="stepper">
+                            <li><span class="stepper-dot">1</span><div><strong>Abertura</strong><p>O chamado &eacute; registrado e aparece no painel do l&iacute;der.</p></div></li>
+                            <li><span class="stepper-dot">2</span><div><strong>Roteamento</strong><p>O sistema sugere o t&eacute;cnico com menor tempo de reparo.</p></div></li>
+                            <li><span class="stepper-dot">3</span><div><strong>Atendimento</strong><p>O t&eacute;cnico inicia o reparo e a contagem come&ccedil;a.</p></div></li>
+                            <li><span class="stepper-dot">4</span><div><strong>Conclus&atilde;o</strong><p>Ap&oacute;s resolver, o chamado &eacute; fechado e o tempo total &eacute; registrado.</p></div></li>
+                        </ol>
+                    </div>
+
+                    <div class="side-card side-tips">
+                        <h3>Dicas</h3>
+                        <ul class="tips-list">
+                            <li>Use um t&iacute;tulo curto e objetivo.</li>
+                            <li>Selecione a m&aacute;quina correta para acelerar o roteamento.</li>
+                            <li>Descreva sintomas, sons ou vazamentos observados.</li>
+                            <li>Anexe uma foto do problema quando poss&iacute;vel.</li>
+                        </ul>
+                    </div>
+                </aside>
+
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    var input = document.getElementById('fotoInput');
+    if (!input) return;
+    var label = document.querySelector('.file-drop-label span');
+    var dropZone = input.parentElement;
+
+    input.addEventListener('change', function () {
+        if (input.files && input.files[0]) {
+            label.textContent = input.files[0].name;
+        }
+    });
+
+    ['dragenter', 'dragover'].forEach(function (evt) {
+        dropZone.addEventListener(evt, function (e) {
+            e.preventDefault();
+            dropZone.classList.add('drag');
+        });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+        dropZone.addEventListener(evt, function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag');
+        });
+    });
+    dropZone.addEventListener('drop', function (e) {
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            input.files = e.dataTransfer.files;
+            label.textContent = e.dataTransfer.files[0].name;
+        }
+    });
+})();
+</script>
 </body>
 </html>

@@ -12,29 +12,92 @@
             <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
 
             <div class="page-header">
-                <h1>Tecnicos com mais chamados resolvidos</h1>
+                <h1>T&eacute;cnicos com mais chamados resolvidos</h1>
                 <a th:href="@{/dashboard}" class="btn-secundario">Voltar ao dashboard</a>
             </div>
 
-            <div class="podium-banner" th:if="${ranking != null and !ranking.isEmpty()}">
-                <div class="podium-icon">1</div>
-                <div class="podium-text">
-                    <h2>Lider do ranking: <span th:text="${ranking[0].nome}">Tecnico</span></h2>
-                    <p>
-                        <span th:text="${ranking[0].total}"></span> chamados resolvidos &middot;
-                        tempo medio de reparo: <span th:text="${#numbers.formatDecimal((ranking[0].tempoMedioSegundos != null ? ranking[0].tempoMedioSegundos/60.0 : 0), 1, 1)}"></span> min
-                    </p>
+            <!-- P&oacute;dio F1: 1&ordm; no topo -->
+            <div class="f1-podium" th:if="${ranking != null and ranking.size() >= 3}">
+                <!-- 2&ordm; lugar -->
+                <div class="podium-step pos2">
+                    <div class="podium-medal">2</div>
+                    <div class="podium-avatar" th:text="${ranking[1].nome != null and ranking[1].nome.length() >= 2 ? ranking[1].nome.substring(0,2).toUpperCase() : '??'}">XX</div>
+                    <div class="podium-name" th:text="${ranking[1].nome}">T&eacute;cnico</div>
+                    <div class="podium-sub">
+                        Reparo m&eacute;dio:
+                        <strong th:text="${#numbers.formatDecimal((ranking[1].tempoMedioSegundos != null ? ranking[1].tempoMedioSegundos/60.0 : 0), 1, 1)}"></strong> min
+                    </div>
+                    <div class="podium-total">
+                        <span th:text="${ranking[1].total}">0</span>
+                        <small>resolvidos</small>
+                    </div>
+                    <div class="podium-block"></div>
+                </div>
+
+                <!-- 1&ordm; lugar (topo) -->
+                <div class="podium-step pos1">
+                    <div class="podium-crown">&#9805;</div>
+                    <div class="podium-medal">1</div>
+                    <div class="podium-avatar" th:text="${ranking[0].nome != null and ranking[0].nome.length() >= 2 ? ranking[0].nome.substring(0,2).toUpperCase() : '??'}">XX</div>
+                    <div class="podium-name" th:text="${ranking[0].nome}">T&eacute;cnico</div>
+                    <div class="podium-sub">
+                        Reparo m&eacute;dio:
+                        <strong th:text="${#numbers.formatDecimal((ranking[0].tempoMedioSegundos != null ? ranking[0].tempoMedioSegundos/60.0 : 0), 1, 1)}"></strong> min
+                    </div>
+                    <div class="podium-total">
+                        <span th:text="${ranking[0].total}">0</span>
+                        <small>resolvidos</small>
+                    </div>
+                    <div class="podium-block"></div>
+                </div>
+
+                <!-- 3&ordm; lugar -->
+                <div class="podium-step pos3">
+                    <div class="podium-medal">3</div>
+                    <div class="podium-avatar" th:text="${ranking[2].nome != null and ranking[2].nome.length() >= 2 ? ranking[2].nome.substring(0,2).toUpperCase() : '??'}">XX</div>
+                    <div class="podium-name" th:text="${ranking[2].nome}">T&eacute;cnico</div>
+                    <div class="podium-sub">
+                        Reparo m&eacute;dio:
+                        <strong th:text="${#numbers.formatDecimal((ranking[2].tempoMedioSegundos != null ? ranking[2].tempoMedioSegundos/60.0 : 0), 1, 1)}"></strong> min
+                    </div>
+                    <div class="podium-total">
+                        <span th:text="${ranking[2].total}">0</span>
+                        <small>resolvidos</small>
+                    </div>
+                    <div class="podium-block"></div>
                 </div>
             </div>
 
-            <div class="ranking-lista" th:if="${ranking != null and !ranking.isEmpty()}">
+            <!-- Demais posicoes (4+) -->
+            <div class="ranking-rest" th:if="${ranking != null and ranking.size() > 3}">
+                <div class="rest-head">Classifica&ccedil;&atilde;o geral</div>
+                <div class="rank-item" th:each="r, stat : ${ranking}" th:if="${stat.count > 3}">
+                    <div class="rank-pos" th:text="${stat.count}">4</div>
+                    <div class="rank-info">
+                        <div class="rank-nome" th:text="${r.nome}">T&eacute;cnico</div>
+                        <div class="rank-extra">
+                            Reparo m&eacute;dio:
+                            <strong th:text="${#numbers.formatDecimal((r.tempoMedioSegundos != null ? r.tempoMedioSegundos/60.0 : 0), 1, 1)}"></strong> min
+                        </div>
+                    </div>
+                    <div class="rank-score">
+                        <div class="rank-total"><span th:text="${r.total}">0</span> <small>resolvidos</small></div>
+                    </div>
+                    <div class="rank-bar">
+                        <div class="rank-fill" th:style="'width:' + ${#numbers.formatDecimal(r.total * 100.0 / maxTotal, 0, 0)} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fallback: lista simples quando h&aacute; menos de 3 t&eacute;cnicos -->
+            <div class="ranking-lista" th:if="${ranking != null and ranking.size() > 0 and ranking.size() < 3}">
                 <div class="rank-item" th:each="r, stat : ${ranking}"
-                     th:classappend="${stat.count == 1} ? 'topo1' : (${stat.count == 2} ? 'topo2' : (${stat.count == 3} ? 'topo3' : ''))">
+                     th:classappend="${stat.count == 1} ? 'topo1' : (${stat.count == 2} ? 'topo2' : '')">
                     <div class="rank-pos" th:text="${stat.count}">1</div>
                     <div class="rank-info">
-                        <div class="rank-nome" th:text="${r.nome}">Tecnico</div>
+                        <div class="rank-nome" th:text="${r.nome}">T&eacute;cnico</div>
                         <div class="rank-extra">
-                            Tempo medio de reparo:
+                            Reparo m&eacute;dio:
                             <strong th:text="${#numbers.formatDecimal((r.tempoMedioSegundos != null ? r.tempoMedioSegundos/60.0 : 0), 1, 1)}"></strong> min
                         </div>
                     </div>
@@ -48,7 +111,7 @@
             </div>
 
             <div class="empty-state" th:if="${ranking == null or ranking.isEmpty()}">
-                <p>Nenhum chamado concluido por tecnicos ainda.</p>
+                <p>Nenhum chamado conclu&iacute;do por t&eacute;cnicos ainda.</p>
             </div>
         </div>
     </div>
