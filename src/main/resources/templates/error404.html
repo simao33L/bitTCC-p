@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>404 - Página Não Encontrada</title>
+    <!-- Importa uma fonte elegante e moderna -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    
+    <!-- Link para o CSS da página de erro (veja o código CSS abaixo) -->
+    <link rel="stylesheet" th:href="@{/css/error404.css}">
+</head>
+<body>
+<div class="space-container">
+    
+    <!-- Link discreto no topo direito igual à imagem -->
+    <div class="top-nav">
+        <span>Já tem uma conta?</span>
+        <a th:href="@{/login}" class="btn-signin">Entrar</a>
+    </div>
+
+    <!-- Conteúdo Central -->
+    <div class="error-center-content">
+        <h1>Bem, isso não é bom.</h1>
+        <p>Essa página não existe. Você deve <a th:href="@{/}">voltar ao início</a>.</p>
+    </div>
+
+    <!-- ELEMENTOS ANIMADOS (Baleia e objetos flutuando) -->
+    <div class="floating-elements">
+        <div class="element whale">🐳</div>
+        <div class="element coffee">☕</div>
+        <div class="element sock sock1">🧦</div>
+        <div class="element sock sock2">🧦</div>
+    </div>
+
+</div>
+</body>
+</html>
