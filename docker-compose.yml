@@ -1,0 +1,22 @@
+services:
+  bittcc-app:
+    build: .
+    container_name: bittcc-app
+    restart: unless-stopped
+    ports:
+      - "8094:8080"
+    volumes:
+      - bittcc-data:/app/data
+    environment:
+      - TZ=America/Sao_Paulo
+
+  bittcc-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: bittcc-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://bittcc-app:8080
+    depends_on:
+      - bittcc-app
+
+volumes:
+  bittcc-data:
