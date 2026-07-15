@@ -53,6 +53,34 @@
                         </div>
                     </div>
 
+                    <div class="detalhe-card" th:if="${chamado.status.name() == 'ABERTO'}">
+                        <h2>Atribuir Técnico</h2>
+                        <div th:if="${sugestaoTecnico != null}" class="sugestao-rota">
+                            <h3>Técnico recomendado pelo sistema</h3>
+                            <div class="sugestao-info">
+                                <span class="sugestao-nome" th:text="${sugestaoTecnico.tecnicoNome}"></span>
+                                <span class="sugestao-det" th:text="'Setor: ' + ${sugestaoTecnico.tecnicoSetor}"></span>
+                                <span class="sugestao-det" th:text="'Chamados ativos: ' + ${sugestaoTecnico.chamadosAtivos}"></span>
+                                <span class="sugestao-det" th:text="'Experiencia: ' + ${sugestaoTecnico.experienciaMotivo} + ' resolucoes'"></span>
+                                <div class="sugestao-just" th:text="${sugestaoTecnico.justificativa}"></div>
+                            </div>
+                            <form th:action="@{/chamados/{id}/auto-assumir(id=${chamado.id})}" method="post" style="margin-top:10px;">
+                                <button type="submit" class="btn-primario">Atribuir automaticamente</button>
+                            </form>
+                        </div>
+                        <form th:action="@{/chamados/{id}/assumir(id=${chamado.id})}" method="post" style="margin-top:14px;">
+                            <label>Ou selecione manualmente:</label>
+                            <select name="tecnicoId" required style="margin:0 8px;">
+                                <option value="">Escolha um técnico</option>
+                                <option th:each="t : ${tecnicos}" th:value="${t.id}" th:text="${t.nome}"></option>
+                            </select>
+                            <button type="submit" class="btn-primario">Assumir e iniciar</button>
+                        </form>
+                        <div class="empty-state" th:if="${tecnicos == null or tecnicos.isEmpty()}" style="margin-top:12px;padding:12px;">
+                            Nenhum técnico cadastrado. <a th:href="@{/usuarios}" style="color:var(--bat-azul-claro);font-weight:700;">Cadastrar técnico</a>
+                        </div>
+                    </div>
+
                     <div class="detalhe-card" th:if="${chamado.status.name() != 'ABERTO'}">
                         <h2>Acoes</h2>
                         <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
@@ -67,29 +95,6 @@
                             <form th:if="${chamado.status.name() == 'EM_ANDAMENTO' or chamado.status.name() == 'ESCALADO'}"
                                   th:action="@{/chamados/{id}/concluir(id=${chamado.id})}" method="post" style="margin:0;">
                                 <button type="submit" class="btn-primario">Concluir chamado</button>
-                            </form>
-                        </div>
-
-                        <div th:if="${chamado.status.name() == 'ABERTO'}" style="margin-top:14px;">
-                            <div th:if="${sugestaoTecnico != null}" class="sugestao-rota">
-                                <h3>Tecnico recomendado pelo sistema</h3>
-                                <div class="sugestao-info">
-                                    <span class="sugestao-nome" th:text="${sugestaoTecnico.tecnicoNome}"></span>
-                                    <span class="sugestao-det" th:text="'Setor: ' + ${sugestaoTecnico.tecnicoSetor}"></span>
-                                    <span class="sugestao-det" th:text="'Chamados ativos: ' + ${sugestaoTecnico.chamadosAtivos}"></span>
-                                    <span class="sugestao-det" th:text="'Experiencia: ' + ${sugestaoTecnico.experienciaMotivo} + ' resolucoes'"></span>
-                                    <div class="sugestao-just" th:text="${sugestaoTecnico.justificativa}"></div>
-                                </div>
-                                <form th:action="@{/chamados/{id}/auto-assumir(id=${chamado.id})}" method="post" style="margin-top:10px;">
-                                    <button type="submit" class="btn-primario">Atribuir automaticamente</button>
-                                </form>
-                            </div>
-                            <form th:action="@{/chamados/{id}/assumir(id=${chamado.id})}" method="post" style="margin-top:14px;">
-                                <label>Ou selecione manualmente:</label>
-                                <select name="tecnicoId" required style="margin:0 8px;">
-                                    <option th:each="t : ${tecnicos}" th:value="${t.id}" th:text="${t.nome}"></option>
-                                </select>
-                                <button type="submit" class="btn-secundario">Assumir e iniciar</button>
                             </form>
                         </div>
 
