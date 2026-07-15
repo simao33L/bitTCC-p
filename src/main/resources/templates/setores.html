@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Setores')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('maquinas')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Gerenciar Setores')"></div>
+
+        <div class="content">
+            <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
+
+            <div class="form-card" style="max-width:560px;margin-bottom:24px;">
+                <h2 style="font-size:1.1rem;font-weight:800;color:var(--bat-azul);margin-bottom:16px;">Novo Setor</h2>
+                <form th:action="@{/setores}" method="post" class="form-grid">
+                    <div class="form-field">
+                        <label for="nome">Nome *</label>
+                        <input type="text" name="nome" id="nome" required maxlength="100" placeholder="Ex: Producao">
+                    </div>
+                    <div class="form-field">
+                        <label for="descricao">Descrição</label>
+                        <input type="text" name="descricao" id="descricao" maxlength="200" placeholder="Ex: Linha de producao">
+                    </div>
+                    <div class="form-actions" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn-primario">Salvar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tabela-wrap" th:if="${setores != null and !setores.isEmpty()}">
+                <table class="tabela">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${setores}">
+                            <td th:text="${s.id}">1</td>
+                            <td class="titulo-cell" th:text="${s.nome}">Producao</td>
+                            <td th:text="${s.descricao ?: '-'}">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" th:if="${setores == null or setores.isEmpty()}">
+                Nenhum setor cadastrado.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

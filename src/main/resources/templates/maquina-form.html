@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Nova Maquina')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('maquinas')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Nova Máquina')"></div>
+
+        <div class="content">
+            <div class="form-card" style="max-width:560px;">
+                <h2 style="font-size:1.2rem;font-weight:800;color:var(--bat-azul);margin-bottom:20px;">Cadastrar Máquina</h2>
+                <form th:action="@{/maquinas}" method="post" class="form-grid">
+                    <div class="form-field full">
+                        <label for="nome">Nome da máquina *</label>
+                        <input type="text" name="nome" id="nome" required maxlength="100" placeholder="Ex: Embaladora Primaria 01">
+                    </div>
+                    <div class="form-field">
+                        <label for="modelo">Modelo</label>
+                        <input type="text" name="modelo" id="modelo" maxlength="50" placeholder="Ex: GD-XP">
+                    </div>
+                    <div class="form-field">
+                        <label for="numeroSerie">Nº de série</label>
+                        <input type="text" name="numeroSerie" id="numeroSerie" maxlength="50" placeholder="Ex: EP-001">
+                    </div>
+                    <div class="form-field full">
+                        <label for="setorId">Setor *</label>
+                        <select name="setorId" id="setorId" required>
+                            <option value="">Selecione um setor</option>
+                            <option th:each="s : ${setores}" th:value="${s.id}" th:text="${s.nome}">Setor</option>
+                        </select>
+                    </div>
+                    <div class="form-actions" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn-primario">Salvar</button>
+                        <a th:href="@{/maquinas}" class="btn-secundario" style="display:inline-flex;align-items:center;">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

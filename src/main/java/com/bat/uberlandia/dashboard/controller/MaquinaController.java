@@ -19,6 +19,7 @@ public class MaquinaController {
     private final MaquinaRepository maquinaRepository;
     private final ChamadoRepository chamadoRepository;
     private final ChamadoService chamadoService;
+    private final SetorRepository setorRepository;
 
     @GetMapping
     public String listarMaquinas(Model model) {
@@ -91,5 +92,31 @@ public class MaquinaController {
         maquinaRepository.save(maquina);
         redirect.addFlashAttribute("sucesso", "Status da maquina atualizado para " + status);
         return "redirect:/maquinas/" + id;
+    }
+
+    @GetMapping("/nova")
+    public String novaMaquina(Model model) {
+        model.addAttribute("setores", setorRepository.findAll());
+        return "maquina-form";
+    }
+
+    @PostMapping
+    public String salvarMaquina(@RequestParam String nome,
+                                @RequestParam(required = false) String modelo,
+                                @RequestParam(required = false) String numeroSerie,
+                                @RequestParam Long setorId,
+                                RedirectAttributes redirect) {
+        Setor setor = setorRepository.findById(setorId)
+                .orElseThrow(() -> new RuntimeException("Setor nao encontrado"));
+        Maquina maquina = Maquina.builder()
+                .nome(nome)
+                .modelo(modelo)
+                .numeroSerie(numeroSerie)
+                .setor(setor)
+                .status(Maquina.StatusMaquina.OPERANDO)
+                .build();
+        maquinaRepository.save(maquina);
+        redirect.addFlashAttribute("sucesso", "Máquina cadastrada com sucesso.");
+        return "redirect:/maquinas";
     }
 }
