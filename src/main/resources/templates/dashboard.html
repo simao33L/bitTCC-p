@@ -39,45 +39,57 @@
                 Filtrando por setor: <strong style="color:var(--bat-azul)" th:text="${setorSelecionado.nome}"></strong>
             </div>
 
-            <!-- KPIs em disposicao destacada -->
             <div class="kpi-grid">
-                <a class="kpi-card kpi-feature aberto" th:href="@{/chamados(status='ABERTO')}">
-                    <div class="kpi-eyebrow">Abertos</div>
-                    <div class="kpi-num" th:text="${abertos.size()}">0</div>
-                    <div class="kpi-foot">Aguardando atendimento</div>
-                </a>
-                <a class="kpi-card andamento" th:href="@{/chamados(status='EM_ANDAMENTO')}">
-                    <div class="kpi-eyebrow">Em andamento</div>
-                    <div class="kpi-num" th:text="${emAndamento.size()}">0</div>
-                </a>
-                <a class="kpi-card pausado" th:href="@{/chamados(status='PAUSADO')}">
-                    <div class="kpi-eyebrow">Pausados</div>
-                    <div class="kpi-num" th:text="${pausados.size()}">0</div>
-                </a>
-                <a class="kpi-card escalado" th:href="@{/chamados(status='ESCALADO')}">
-                    <div class="kpi-eyebrow">Escalados</div>
-                    <div class="kpi-num" th:text="${escalados.size()}">0</div>
-                </a>
-                <a class="kpi-card concluido" th:href="@{/chamados(status='CONCLUIDO')}">
-                    <div class="kpi-eyebrow">Conclu&iacute;dos</div>
-                    <div class="kpi-num" th:text="${concluidos.size()}">0</div>
-                </a>
-
-                <div class="kpi-strip tempo">
-                    <div class="strip-left">
-                        <div class="kpi-eyebrow">Tempo m&eacute;dio de reparo</div>
-                        <div class="strip-hint">Minutos por chamado</div>
-                    </div>
-                    <div class="strip-value">
-                        <span th:text="${#numbers.formatDecimal(tempoMedioReparo, 1, 1)}">0</span>
-                        <small>min</small>
-                    </div>
-                    <div class="strip-meter">
-                        <div class="strip-meter-fill" th:style="'width:' + (${tempoMedioReparo >= 60 ? 100 : #numbers.formatDecimal(tempoMedioReparo * 100.0 / 60, 0, 0)}) + '%'"></div>
-                    </div>
+                <!-- 1. Abertos -->
+                <div class="kpi-card aberto">
+                  <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+                  <div class="kpi-eyebrow">Abertos</div>
+                  <div class="kpi-num" th:text="${abertos != null ? abertos.size() : 0}">0</div>
+                  <div class="kpi-foot">Aguardando atendimento</div>
                 </div>
-            </div>
 
+                <!-- 2. Em Andamento -->
+                <div class="kpi-card andamento">
+                  <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg></div>
+                  <div class="kpi-eyebrow">Em Andamento</div>
+                  <div class="kpi-num" th:text="${emAndamento != null ? emAndamento.size() : 0}">0</div>
+                  <div class="kpi-foot">Manutenção ativa</div>
+                </div>
+
+                <!-- 3. Pausados -->
+                <div class="kpi-card pausado">
+                  <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></div>
+                  <div class="kpi-eyebrow">Pausados</div>
+                  <div class="kpi-num" th:text="${pausados != null ? pausados.size() : 0}">0</div>
+                  <div class="kpi-foot">Aguardando peça/liberação</div>
+                </div>
+
+                <!-- 4. Escalados -->
+                <div class="kpi-card escalado">
+                  <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+                  <div class="kpi-eyebrow">Escalados</div>
+                  <div class="kpi-num" th:text="${escalados != null ? escalados.size() : 0}">0</div>
+                  <div class="kpi-foot">Enviado para engenharia</div>
+                </div>
+
+                <!-- 5. Concluídos -->
+                <div class="kpi-card concluido">
+                  <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                  <div class="kpi-eyebrow">Concluídos</div>
+                  <div class="kpi-num" th:text="${concluidos != null ? concluidos.size() : 0}">0</div>
+                  <div class="kpi-foot">Finalizados</div>
+                </div>
+
+                <!-- 6. Tempo Médio -->
+                <div class="kpi-card tempo">
+                  <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                  <div class="kpi-eyebrow">Tempo Médio de Reparo</div>
+                  <div class="kpi-num" th:text="${#numbers.formatDecimal(tempoMedioReparo ?: 0, 1, 'POINT', 1, 'COMMA')} + ' min'">0 min</div>
+                  <div class="kpi-foot">Minutos por chamado</div>
+                </div>
+              </div>
+              
+         
             <!-- Hero: tendencia temporal -->
             <section class="hero-card">
                 <header class="card-head">
@@ -197,14 +209,6 @@
                     </div>
                 </section>
             </div>
-
-            <div class="chat-quick-actions">
-                <span class="chat-quick-title">Pergunte ao assistente:</span>
-                <button class="chat-quick-btn" data-chat-msg="resumo dos chamados">Resumo</button>
-                <button class="chat-quick-btn" data-chat-msg="máquinas paradas">Máquinas paradas</button>
-                <button class="chat-quick-btn" data-chat-msg="ranking">Ranking</button>
-                <button class="chat-quick-btn" data-chat-msg="mtbf">MTBF</button>
-            </div>
         </div>
     </div>
 </div>
@@ -224,8 +228,8 @@
             return;
         }
 
-        var cores = ['#000245', '#002a7a', '#1f5fbf', '#1f9d55', '#c48f00',
-                     '#c25a1e', '#b5302a', '#5c30a0', '#6b7280'];
+        var cores = ['#0a2540', '#1b3a6b', '#2f6bff', '#117F3A', '#8C6500',
+                     '#c25a1e', '#D52222', '#6d28d9', '#6b7280'];
 
         // Monta pares [motivo, valor] e ordena do maior pro menor (regra do Pareto)
         var pares = [];
@@ -263,9 +267,9 @@
                         type: 'line',
                         label: 'Acumulado (%)',
                         data: percentualAcumulado,
-                        borderColor: '#b5302a',
-                        backgroundColor: '#b5302a',
-                        pointBackgroundColor: '#b5302a',
+                        borderColor: '#D52222',
+                        backgroundColor: '#D52222',
+                        pointBackgroundColor: '#D52222',
                         pointRadius: 4,
                         tension: 0.25,
                         yAxisID: 'y1',
@@ -335,19 +339,19 @@
         var datasetTotal = {
             label: 'Total de chamados concluidos',
             data: [],
-            borderColor: '#000245',
+            borderColor: '#0a2540',
             backgroundColor: 'rgba(0,2,69,0.08)',
             fill: true,
             tension: 0.3,
             borderWidth: 2,
             pointRadius: 3,
-            pointBackgroundColor: '#000245'
+            pointBackgroundColor: '#0a2540'
         };
 
         var coresMotivo = {
-            ELETRICA: '#b5302a', MECANICA: '#1f9d55', PNEUMATICA: '#c48f00',
-            HIDRAULICA: '#002a7a', ELETRONICA: '#5c30a0', SOFTWARE: '#c25a1e',
-            OPERACIONAL: '#1f5fbf', DESGASTE: '#6b7280', OUTROS: '#3a3a3a'
+            ELETRICA: '#D52222', MECANICA: '#117F3A', PNEUMATICA: '#8C6500',
+            HIDRAULICA: '#1b3a6b', ELETRONICA: '#6d28d9', SOFTWARE: '#c25a1e',
+            OPERACIONAL: '#2f6bff', DESGASTE: '#6b7280', OUTROS: '#3a3a3a'
         };
 
         var allDates = new Set(Object.keys(tendenciaDiaria));
