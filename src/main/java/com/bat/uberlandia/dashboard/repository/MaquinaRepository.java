@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface MaquinaRepository extends JpaRepository<Maquina, Long> {
     List<Maquina> findBySetorId(Long setorId);
     Optional<Maquina> findByNome(String nome);
+    List<Maquina> findByStatus(Maquina.StatusMaquina status);
 }

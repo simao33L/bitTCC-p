@@ -15,6 +15,8 @@ public interface ChamadoRepository extends JpaRepository<Chamado, Long> {
 
     List<Chamado> findByStatus(Status status);
 
+    long countByStatus(Status status);
+
     List<Chamado> findByStatusIn(List<Status> statusList);
 
     List<Chamado> findByStatusAndAlerta30MinEnviadoFalse(Status status);
