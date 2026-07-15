@@ -30,6 +30,14 @@
                 <a th:href="@{/chamados}" class="btn-secundario">Voltar</a>
             </div>
 
+            <div style="display:flex; gap:10px; margin-bottom:18px; justify-content:flex-end;">
+                <form th:action="@{/chamados/{id}/excluir(id=${chamado.id})}" method="post"
+                      onsubmit="return confirm('Excluir chamado #' + this.getAttribute('data-id') + '?')"
+                      th:attr="data-id=${chamado.id}" style="margin:0;">
+                    <button type="submit" class="btn-secundario" style="color:var(--vermelho);border-color:var(--vermelho-soft);">Excluir chamado</button>
+                </form>
+            </div>
+
             <div class="detalhe-grid">
                 <div>
                     <div class="detalhe-card" style="margin-bottom:18px;">

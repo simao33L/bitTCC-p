@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Usuarios')"></head>
+<body>
+<div class="app">
+    <div th:replace="fragments/layout :: sidebar('usuarios')"></div>
+
+    <div class="main">
+        <div th:replace="fragments/layout :: topbar('Gerenciar Usuários')"></div>
+
+        <div class="content">
+            <div th:if="${sucesso}" class="alert-sucesso" th:text="${sucesso}"></div>
+            <div th:if="${erro}" class="alert-erro" th:text="${erro}"></div>
+
+            <div class="form-card" style="max-width:560px;margin-bottom:24px;">
+                <h2 style="font-size:1.1rem;font-weight:800;color:var(--bat-azul);margin-bottom:16px;">Novo Usuário</h2>
+                <form th:action="@{/usuarios}" method="post" class="form-grid">
+                    <div class="form-field">
+                        <label for="login">Login *</label>
+                        <input type="text" name="login" id="login" required maxlength="50" placeholder="Ex: paulino">
+                    </div>
+                    <div class="form-field">
+                        <label for="nome">Nome completo *</label>
+                        <input type="text" name="nome" id="nome" required maxlength="100" placeholder="Ex: Paulo Almeida">
+                    </div>
+                    <div class="form-field">
+                        <label for="senha">Senha *</label>
+                        <input type="text" name="senha" id="senha" required maxlength="50" placeholder="Senha do usuário">
+                    </div>
+                    <div class="form-field">
+                        <label for="tipo">Cargo *</label>
+                        <select name="tipo" id="tipo" required>
+                            <option value="OPERADOR">Operador</option>
+                            <option value="TECNICO" selected>Técnico</option>
+                            <option value="ESPECIALISTA">Especialista</option>
+                            <option value="LIDER">Líder</option>
+                            <option value="VISUALIZADOR">Visualizador</option>
+                        </select>
+                    </div>
+                    <div class="form-field full">
+                        <label for="setorId">Setor</label>
+                        <select name="setorId" id="setorId">
+                            <option value="">Nenhum</option>
+                            <option th:each="s : ${setores}" th:value="${s.id}" th:text="${s.nome}">Setor</option>
+                        </select>
+                    </div>
+                    <div class="form-actions" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn-primario">Salvar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tabela-wrap" th:if="${usuarios != null and !usuarios.isEmpty()}">
+                <table class="tabela">
+                    <thead>
+                        <tr>
+                            <th>Login</th>
+                            <th>Nome</th>
+                            <th>Cargo</th>
+                            <th>Setor</th>
+                            <th style="width:80px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${usuarios}">
+                            <td class="titulo-cell" th:text="${u.login}">login</td>
+                            <td th:text="${u.nome}">Nome</td>
+                            <td>
+                                <span class="status-pill"
+                                      th:classappend="${u.tipo.name() == 'LIDER'} ? 'pill-concluido' :
+                                        (${u.tipo.name() == 'TECNICO'} ? 'pill-andamento' :
+                                        (${u.tipo.name() == 'ESPECIALISTA'} ? 'pill-escalado' : 'pill-pausado'))"
+                                      th:text="${u.tipo.name() == 'LIDER'} ? 'Líder' :
+                                        (${u.tipo.name() == 'TECNICO'} ? 'Técnico' :
+                                        (${u.tipo.name() == 'ESPECIALISTA'} ? 'Especialista' :
+                                        (${u.tipo.name() == 'OPERADOR'} ? 'Operador' : 'Visualizador')))">Cargo</span>
+                            </td>
+                            <td th:text="${u.setor != null ? u.setor.nome : '-'}">Setor</td>
+                            <td>
+                                <form th:action="@{/usuarios/{id}/excluir(id=${u.id})}" method="post"
+                                      onsubmit="return confirm('Remover usuário ' + this.getAttribute('data-nome') + '?')"
+                                      th:attr="data-nome=${u.nome}" style="margin:0;">
+                                    <button type="submit" class="btn-secundario" style="padding:4px 10px;font-size:0.72rem;color:var(--vermelho);border-color:var(--vermelho-soft);">Remover</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" th:if="${usuarios == null or usuarios.isEmpty()}">
+                Nenhum usuário cadastrado.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -22,7 +22,8 @@
             </div>
 
             <div class="maquinas-grid" th:if="${maquinaInfos != null and !maquinaInfos.isEmpty()}">
-                <a th:each="mi : ${maquinaInfos}" th:href="@{/maquinas/{id}(id=${mi.maquina.id})}" class="maquina-card">
+                <div th:each="mi : ${maquinaInfos}" class="maquina-card" style="position:relative;">
+                    <a th:href="@{/maquinas/{id}(id=${mi.maquina.id})}" style="text-decoration:none;color:inherit;display:block;">
                     <h3 th:text="${mi.maquina.nome}">Maquina</h3>
                     <div class="maq-modelo">
                         <span th:text="${mi.maquina.modelo ?: ''}"></span>
@@ -56,7 +57,14 @@
                     <div style="margin-top:8px; font-size:0.74rem; color:var(--texto-suave);">
                         <strong>Setor:</strong> <span th:text="${mi.maquina.setor != null ? mi.maquina.setor.nome : '-'}"></span>
                     </div>
-                </a>
+                    </a>
+                    <form th:action="@{/maquinas/{id}/excluir(id=${mi.maquina.id})}" method="post"
+                          onsubmit="return confirm('Remover máquina ' + this.getAttribute('data-nome') + '?')"
+                          th:attr="data-nome=${mi.maquina.nome}"
+                          style="position:absolute;top:8px;right:8px;margin:0;z-index:2;">
+                        <button type="submit" style="background:var(--vermelho-soft);color:var(--vermelho);border:none;border-radius:6px;width:24px;height:24px;font-weight:800;font-size:0.75rem;cursor:pointer;display:grid;place-items:center;" title="Remover">X</button>
+                    </form>
+                </div>
             </div>
 
             <div class="empty-state" th:if="${maquinaInfos == null or maquinaInfos.isEmpty()}">

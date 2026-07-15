@@ -44,6 +44,7 @@
                         <th>Status</th>
                         <th>Prioridade</th>
                         <th>Abertura</th>
+                        <th style="width:80px;"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -78,6 +79,13 @@
                             <span th:unless="${c.status.name() == 'EM_ANDAMENTO' or c.status.name() == 'ESCALADO'}">-</span>
                         </td>
                         <td th:text="${c.dataAbertura != null ? #temporals.format(c.dataAbertura, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                        <td>
+                            <form th:action="@{/chamados/{id}/excluir(id=${c.id})}" method="post"
+                                  onsubmit="return confirm('Excluir chamado #' + this.getAttribute('data-id') + '?')"
+                                  th:attr="data-id=${c.id}" style="margin:0;">
+                                <button type="submit" class="btn-secundario" style="padding:4px 10px;font-size:0.72rem;color:var(--vermelho);border-color:var(--vermelho-soft);">Excluir</button>
+                            </form>
+                        </td>
                     </tr>
                     </tbody>
                 </table>

@@ -207,4 +207,11 @@ public class ChamadoController {
         redirect.addFlashAttribute("sucesso", "Locomocao finalizada.");
         return "redirect:/chamados/" + id;
     }
+
+    @PostMapping("/{id}/excluir")
+    public String excluirChamado(@PathVariable Long id, RedirectAttributes redirect) {
+        chamadoRepository.deleteById(id);
+        redirect.addFlashAttribute("sucesso", "Chamado #" + id + " excluído.");
+        return "redirect:/chamados";
+    }
 }

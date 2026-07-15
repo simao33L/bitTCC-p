@@ -33,4 +33,11 @@ public class SetorController {
         redirect.addFlashAttribute("sucesso", "Setor cadastrado com sucesso.");
         return "redirect:/setores";
     }
+
+    @PostMapping("/{id}/excluir")
+    public String excluir(@PathVariable Long id, RedirectAttributes redirect) {
+        setorRepository.deleteById(id);
+        redirect.addFlashAttribute("sucesso", "Setor removido.");
+        return "redirect:/setores";
+    }
 }

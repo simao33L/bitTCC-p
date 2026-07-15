@@ -119,4 +119,11 @@ public class MaquinaController {
         redirect.addFlashAttribute("sucesso", "Máquina cadastrada com sucesso.");
         return "redirect:/maquinas";
     }
+
+    @PostMapping("/{id}/excluir")
+    public String excluirMaquina(@PathVariable Long id, RedirectAttributes redirect) {
+        maquinaRepository.deleteById(id);
+        redirect.addFlashAttribute("sucesso", "Máquina removida.");
+        return "redirect:/maquinas";
+    }
 }
